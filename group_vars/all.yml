@@ -1,4 +1,8 @@
 ---
+# Cloud settings
+cloud: openshift-test
+endpoint_type: internal
+
 # Name of the SSH keypair that must already be know to the cloud
 key_name: os_admin
 

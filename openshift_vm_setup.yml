@@ -6,9 +6,6 @@
 
 - name: Set up all VMs
   hosts: localhost
-  vars:
-     - cloud: openshift-test
-     - endpoint_type: internal
   tasks:
      - name: Set up Networks
        include_tasks: "tasks/task_setup_networks.yml"
