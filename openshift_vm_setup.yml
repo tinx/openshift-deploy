@@ -23,13 +23,32 @@
   hosts: all
   gather_facts: true
   remote_user: centos
+  become: true
+  become_user: root
   tasks:
-     - name: Activate all interfaces
-       debug:
-         msg: 'configuring {{ item }}'
-       when: hostvars[inventory_hostname]["ansible_"+item]["type"] == "ether"
-       with_items:
-         - '{{ hostvars[inventory_hostname]["ansible_interfaces"] }}'
+    - name: Activate all interfaces
+      template:
+        src: templates/ifcfg.j2
+        dest: '/etc/sysconfig/network-scripts/ifcfg-{{ item }}'
+        mode: 0644
+        owner: root
+        group: root
+        force: false
+      when: hostvars[inventory_hostname]["ansible_"+item]["type"] == "ether"
+      with_items:
+        - '{{ hostvars[inventory_hostname]["ansible_interfaces"] }}'
+      notify:
+         - restart network
+    - name: Make sure network changes are activated now
+      meta: flush_handlers
+
+  handlers:
+    - name: restart network
+      service:
+        name: network
+        state: restarted
+      listen: 'restart network'
+
 
 # XXX TODO:
 #  - activate all interfaces in all VMs
