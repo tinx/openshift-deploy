@@ -1,0 +1,18 @@
+---
+- name: Ensure presence of security group 'allow-ssh'
+  os_security_group:
+    cloud: '{{ cloud }}'
+    endpoint_type: '{{ endpoint_type }}'
+    name: allow-ssh
+    description: Security group to allow SSH traffic.
+    state: present
+- name: Ensure security group 'allow-ssh' allows ssh
+  os_security_group_rule:
+    cloud: '{{ cloud }}'
+    endpoint_type: '{{ endpoint_type }}'
+    port_range_min: 22
+    port_range_max: 22
+    protocol: tcp
+    security_group: allow-ssh
+    direction: ingress
+    state: present

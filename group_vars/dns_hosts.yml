@@ -1,0 +1,8 @@
+---
+image: "CentOS 7"
+flavor: m1.medium
+networks:
+  - public5
+  - nodes-net
+security_groups:
+  - allow-ssh

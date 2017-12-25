@@ -1,0 +1,31 @@
+---
+# Name of the SSH keypair that must already be know to the cloud
+key_name: os_admin
+
+# The internal networks that we want.
+openshift_networks:
+  masters-net:
+    external: false
+    shared: false
+    description: Communication between master hosts
+    subnets:
+      - cidr: 10.40.0.0/24
+        no_gateway_ip: true
+        name: masters-subnet1
+  etcds-net:
+    external: false
+    shared: false
+    description: Communication between etcd hosts
+    subnets:
+      - cidr: 10.50.0.0/24
+        no_gateway_ip: true
+        name: etcds-subnet1
+  nodes-net:
+    external: false
+    shared: false
+    description: Node-to-node and node-master communication
+    subnets:
+      - cidr: 10.60.0.0/24
+        no_gateway_ip: true
+        name: nodes-subnet1
+

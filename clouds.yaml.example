@@ -1,0 +1,12 @@
+---
+clouds:
+  supercloud:
+    auth:
+      auth_url: http://keystone.supercloud.example.com/v3
+      project_name: openshift-project
+      username: openshift
+      password: supersecret
+      user_domain_name: default
+      project_domain_name: default
+    region_name: Berlin
+    identity_api_version: 3

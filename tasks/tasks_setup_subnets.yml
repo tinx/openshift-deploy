@@ -1,0 +1,13 @@
+---
+- name: Ensure presence of subnet
+  os_subnet:
+    cloud: '{{ cloud }}'
+    endpoint_type: '{{ endpoint_type }}'
+    network_name: '{{ os_network }}'
+    name: '{{ subnet.name }}'
+    no_gateway_ip: '{{ subnet.no_gateway_ip }}'
+    cidr: '{{ subnet.cidr }}'
+    state: present
+  with_items: '{{ os_subnets }}'
+  loop_control:
+    loop_var: subnet

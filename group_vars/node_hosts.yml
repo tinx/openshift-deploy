@@ -1,0 +1,9 @@
+---
+image: "CentOS 7"
+flavor: webnode
+networks:
+  - public5
+  - nodes-net
+security_groups:
+  - allow-ssh
+

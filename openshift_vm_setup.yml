@@ -1,0 +1,41 @@
+---
+- name: Populate ansible hostvars
+  hosts: all
+  gather_facts: false
+  tasks: []
+
+- name: Set up all VMs
+  hosts: localhost
+  vars:
+     - cloud: openshift-test
+     - endpoint_type: internal
+  tasks:
+     - name: Set up Networks
+       include_tasks: "tasks/task_setup_networks.yml"
+     - name: Set up Security Groups
+       include_tasks: "tasks/task_setup_security_groups.yml"
+     - name: Set up VM
+       include_tasks: "tasks/task_setup_vm.yml"
+       vars:
+         hostname: "{{ item }}"
+         host: "{{ hostvars[item] }}"
+       with_items:
+         - "{{ groups['all'] }}"
+
+- name: Configure VMs
+  hosts: all
+  gather_facts: true
+  remote_user: centos
+  tasks:
+     - name: Activate all interfaces
+       debug:
+         msg: 'configuring {{ item }}'
+       when: hostvars[inventory_hostname]["ansible_"+item]["type"] == "ether"
+       with_items:
+         - '{{ hostvars[inventory_hostname]["ansible_interfaces"] }}'
+
+# XXX TODO:
+#  - activate all interfaces in all VMs
+#    (right now they don't even do DHCP, thus they are unusable)
+#  - set sensible security groups
+#

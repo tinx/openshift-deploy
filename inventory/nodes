@@ -1,0 +1,23 @@
+[dns_hosts]
+dns1		availability_zone=orange
+dns2		availability_zone=purple
+dns3		availability_zone=crimson
+
+[master_hosts]
+master1		availability_zone=orange
+master2		availability_zone=purple
+master3		availability_zone=crimson
+
+[node_hosts]
+node1		availability_zone=orange
+node2		availability_zone=purple
+node3		availability_zone=crimson
+node4		availability_zone=orange
+node5		availability_zone=purple
+node6		availability_zone=crimson
+
+[etcd_hosts]
+etcd1		availability_zone=orange
+etcd2		availability_zone=purple
+etcd3		availability_zone=crimson
+

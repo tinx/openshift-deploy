@@ -1,0 +1,11 @@
+---
+image: "CentOS 7"
+flavor: webnode
+networks:
+  - public5
+  - masters-net
+  - etcds-net
+  - nodes-net
+security_groups:
+  - allow-ssh
+

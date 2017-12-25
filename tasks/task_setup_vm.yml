@@ -1,0 +1,19 @@
+---
+- name: Set up VM
+  os_server:
+    cloud: '{{ cloud }}'
+    endpoint_type: '{{ endpoint_type }}'
+    image: '{{ host.image }}'
+    name: '{{ hostname }}'
+    key_name: '{{ key_name }}'
+    availability_zone: '{{ host.availability_zone }}'
+    flavor: '{{ host.flavor }}'
+    state: present
+    nics: 'net-name={{ host.networks|join(",net-name=") }}'
+    security_groups: '{{ host.security_groups }}'
+  register: my_vm
+- name: Add of inventory
+  add_host:
+    name: '{{ hostname }}'
+    groups: '{{ host.group_names }}'
+    ansible_host: "{{ my_vm.server.public_v4 }}"
