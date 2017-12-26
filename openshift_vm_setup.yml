@@ -11,13 +11,14 @@
        include_tasks: "tasks/task_setup_networks.yml"
      - name: Set up Security Groups
        include_tasks: "tasks/task_setup_security_groups.yml"
-     - name: Set up VM
+     - name: Set up VMs
        include_tasks: "tasks/task_setup_vm.yml"
        vars:
-         hostname: "{{ item }}"
-         host: "{{ hostvars[item] }}"
+         host: "{{ hostvars[hostname] }}"
        with_items:
          - "{{ groups['all'] }}"
+       loop_control:
+         loop_var: hostname
 
 - name: Configure VMs
   hosts: all
