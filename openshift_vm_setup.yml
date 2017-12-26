@@ -4,7 +4,7 @@
   gather_facts: false
   tasks: []
 
-- name: Set up all VMs
+- name: Configure OpenStack project
   hosts: localhost
   tasks:
      - name: Set up Networks
