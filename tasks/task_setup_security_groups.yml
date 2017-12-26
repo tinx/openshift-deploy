@@ -1,18 +1,23 @@
 ---
-- name: Ensure presence of security group 'allow-ssh'
+# called with secuity group definition in 'os_secgroup_rules' and security
+# group name in 'os_secgroup_name'
+
+# First pass: create all security groups, so we can reference them in the rules
+- name: Ensure presence of security group
   os_security_group:
     cloud: '{{ cloud }}'
     endpoint_type: '{{ endpoint_type }}'
-    name: allow-ssh
-    description: Security group to allow SSH traffic.
+    name: '{{ os_secgroup_name }}'
     state: present
-- name: Ensure security group 'allow-ssh' allows ssh
-  os_security_group_rule:
-    cloud: '{{ cloud }}'
-    endpoint_type: '{{ endpoint_type }}'
-    port_range_min: 22
-    port_range_max: 22
-    protocol: tcp
-    security_group: allow-ssh
-    direction: ingress
-    state: present
+  with_items: '{{ hostvars[inventory_hostname]["openshift_security_groups"] }}'
+  loop_control:
+    loop_var: os_secgroup_name
+
+# Second pass: create the rules
+- name: Ensure security group rules
+  include_tasks: "tasks/task_setup_security_group_rules.yml"
+  vars:
+    os_secgroup_rules: '{{ hostvars[inventory_hostname]["openshift_security_groups"][os_secgroup_name] }}'
+  with_items: '{{ hostvars[inventory_hostname]["openshift_security_groups"] }}'
+  loop_control:
+    loop_var: os_secgroup_name

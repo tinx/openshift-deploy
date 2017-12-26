@@ -33,3 +33,70 @@ openshift_networks:
         no_gateway_ip: true
         name: nodes-subnet1
 
+openshift_security_groups:
+  secgroup_all_hosts:
+    - protocol: icmp
+      direction: ingress
+  secgroup_allow_ssh:
+    - port_range_min: 22
+      port_range_max: 22
+      protocol: tcp
+      direction: ingress
+  secgroup_dns_hosts:
+    - port_range_min: 53
+      port_range_max: 53
+      protocol: tcp
+      direction: ingress
+      remote_group: secgroup_all_hosts
+    - port_range_min: 53
+      port_range_max: 53
+      protocol: udp
+      direction: ingress
+      remote_group: secgroup_all_hosts
+  secgroup_master_hosts:
+    - port_range_min: 8443
+      port_range_max: 8443
+      protocol: tcp
+      direction: ingress
+    - port_range_min: 8053
+      port_range_max: 8053
+      protocol: tcp
+      direction: ingress
+      remote_group: secgroup_all_hosts
+    - port_range_min: 8053
+      port_range_max: 8053
+      protocol: udp
+      direction: ingress
+      remote_group: secgroup_all_hosts
+  secgroup_etcd_hosts:
+    - port_range_min: 2379
+      port_range_max: 2379
+      protocol: tcp
+      direction: ingress
+      remote_group: secgroup_master_hosts
+    - port_range_min: 2380
+      port_range_max: 2380
+      protocol: tcp
+      direction: ingress
+      remote_group: secgroup_etcd_hosts
+  secgroup_node_hosts:
+    - port_range_min: 10250
+      port_range_max: 10250
+      protocol: tcp
+      direction: ingress
+      remote_group: secgroup_master_hosts
+    - port_range_min: 4789
+      port_range_max: 4789
+      protocol: udp
+      direction: ingress
+      remote_group: secgroup_node_hosts
+  secgroup_infra_hosts:
+    - port_range_min: 443
+      port_range_max: 443
+      protocol: tcp
+      direction: ingress
+    - port_range_min: 80
+      port_range_max: 80
+      protocol: tcp
+      direction: ingress
+

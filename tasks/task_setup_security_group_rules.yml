@@ -1,0 +1,15 @@
+---
+- name: Set up security group rules
+  os_security_group_rule:
+    cloud: '{{ cloud }}'
+    endpoint_type: '{{ endpoint_type }}'
+    port_range_min: '{{ os_sg_rule.port_range_min|default(omit) }}'
+    port_range_max: '{{ os_sg_rule.port_range_max|default(omit) }}'
+    protocol: '{{ os_sg_rule.protocol|default("tcp") }}'
+    security_group: '{{ os_secgroup_name }}'
+    direction: '{{ os_sg_rule.direction|default("ingress") }}'
+    remote_group: '{{ os_sg_rule.remote_group|default(omit) }}'
+    state: present
+  with_items: '{{ os_secgroup_rules }}'
+  loop_control:
+    loop_var: os_sg_rule

@@ -7,5 +7,6 @@ networks:
   - etcds-net
   - nodes-net
 security_groups:
-  - allow-ssh
-
+  - secgroup_all_hosts
+  - secgroup_allow_ssh
+  - secgroup_master_hosts
