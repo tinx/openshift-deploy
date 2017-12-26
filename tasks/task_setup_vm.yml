@@ -1,4 +1,5 @@
 ---
+# Ensure the VM has the correct state in the OpenStack cloud.
 - name: Set up VM
   os_server:
     cloud: '{{ cloud }}'
@@ -12,6 +13,8 @@
     nics: 'net-name={{ host.networks|join(",net-name=") }}'
     security_groups: '{{ host.security_groups }}'
   register: my_vm
+
+# Add the VM to the current in-memory Ansible inventory.
 - name: Add to inventory
   add_host:
     name: '{{ hostname }}'

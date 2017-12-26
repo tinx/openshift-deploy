@@ -1,0 +1,8 @@
+- name: VM state loop
+  include_tasks: "tasks/task_setup_vm.yml"
+  vars:
+    host: "{{ hostvars[hostname] }}"
+  with_items:
+    - "{{ groups['all'] }}"
+  loop_control:
+    loop_var: hostname
