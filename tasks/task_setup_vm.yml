@@ -12,8 +12,9 @@
     nics: 'net-name={{ host.networks|join(",net-name=") }}'
     security_groups: '{{ host.security_groups }}'
   register: my_vm
-- name: Add of inventory
+- name: Add to inventory
   add_host:
     name: '{{ hostname }}'
     groups: '{{ host.group_names }}'
     ansible_host: "{{ my_vm.server.public_v4 }}"
+  changed_when: false
