@@ -7,10 +7,10 @@
     external: '{{ item.value.external }}'
     shared: '{{ item.value.shared }}'
     state: present
-  with_dict: '{{ hostvars[groups.all|first].openshift_networks }}'
+  with_dict: '{{ hostvars[inventory_hostname].openshift_networks }}'
 - name: Ensure presense of subnets
   include_tasks: "tasks/tasks_setup_subnets.yml"
   vars:
     os_network: '{{ item.key }}'
     os_subnets: '{{ item.value.subnets }}'
-  with_dict: '{{ hostvars[groups.all|first].openshift_networks }}'
+  with_dict: '{{ hostvars[inventory_hostname].openshift_networks }}'
