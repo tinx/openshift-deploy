@@ -1,0 +1,9 @@
+---
+image: "CentOS 7"
+flavor: webnode
+networks:
+  - public5
+security_groups:
+  - secgroup_all_hosts
+  - secgroup_allow_ssh
+  - secgroup_infra_hosts

@@ -21,3 +21,7 @@ etcd1		availability_zone=orange
 etcd2		availability_zone=purple
 etcd3		availability_zone=crimson
 
+[infra_hosts]
+infra1		availability_zone=orange
+infra2		availability_zone=purple
+infra3		availability_zone=crimson
