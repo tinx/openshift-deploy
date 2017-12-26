@@ -48,10 +48,3 @@
         name: network
         state: restarted
       listen: 'restart network'
-
-
-# XXX TODO:
-#  - activate all interfaces in all VMs
-#    (right now they don't even do DHCP, thus they are unusable)
-#  - set sensible security groups
-#
