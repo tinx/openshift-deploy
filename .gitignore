@@ -3,3 +3,7 @@ clouds.yaml
 id_*
 os/
 *.swp
+*.retry
+py36/
+test.*
+todo.txt
