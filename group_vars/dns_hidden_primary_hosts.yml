@@ -3,7 +3,6 @@ image: "CentOS 7"
 flavor: m1.small
 networks:
   - public5
-  - nodes-net
   - dns-net
 security_groups:
   - secgroup_all_hosts

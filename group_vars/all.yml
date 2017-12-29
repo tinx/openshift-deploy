@@ -6,9 +6,15 @@ endpoint_type: internal
 # Name of the SSH keypair that must already be know to the cloud
 key_name: os_admin
 
+# base DNS domain
+base_domain: openshift.uf0.de
+dns_nameserver: ns1.openshift.uf0.de.
+dns_hostmaster: hostmaster@uf0.de.
+
 # The internal networks that we want.
 openshift_networks:
   masters-net:
+    dns-subdomain: master
     external: false
     shared: false
     description: Communication between master hosts
@@ -17,6 +23,7 @@ openshift_networks:
         no_gateway_ip: true
         name: masters-subnet1
   etcds-net:
+    dns-subdomain: etcd
     external: false
     shared: false
     description: Communication between etcd hosts
@@ -25,6 +32,7 @@ openshift_networks:
         no_gateway_ip: true
         name: etcds-subnet1
   nodes-net:
+    dns-subdomain: node
     external: false
     shared: false
     description: Node-to-node and node-master communication
@@ -32,6 +40,15 @@ openshift_networks:
       - cidr: 10.60.0.0/24
         no_gateway_ip: true
         name: nodes-subnet1
+  dns-net:
+    dns-subdomain: dns
+    external: false
+    shared: false
+    description: Communication amongst DNS servers
+    subnets:
+      - cidr: 10.70.0.0/24
+        no_gateway_ip: true
+        name: dns-subnet1
 
 openshift_security_groups:
   secgroup_all_hosts:

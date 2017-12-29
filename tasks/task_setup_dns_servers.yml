@@ -1,0 +1,26 @@
+---
+- name: get VM infos
+  os_server_facts:
+    cloud: '{{ cloud }}'
+    endpoint_type: '{{ endpoint_type }}'
+  delegate_to: localhost
+  when: openstack_servers is not defined
+
+- name: set up DNS forward zones
+  include_tasks: tasks/task_setup_dns_zones.yml
+  with_items: '{{ openshift_networks }}'
+  loop_control:
+    loop_var: network
+
+- name: get OpenStack subnet information
+  os_subnets_facts:
+    cloud: '{{ cloud }}'
+    endpoint_type: '{{ endpoint_type }}'
+  delegate_to: localhost
+  when: openstack_subnets is not defined
+
+- name: set up DNS reverse zones
+  include_tasks: tasks/task_setup_reverse_dns_zones.yml
+  with_items: '{{ openstack_subnets }}'
+  loop_control:
+    loop_var: subnet

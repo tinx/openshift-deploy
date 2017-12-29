@@ -1,0 +1,30 @@
+{% set origin = subnet.cidr|ipaddr("network")|regex_replace("^(\d+)\.(\d+)\.(\d+)\.0$", "\\3.\\2.\\1") + '.in-addr.arpa.' %}
+{% set serial = now.stdout %}
+; {{ ansible_managed }}
+$TTL 4h
+$ORIGIN {{ origin }}
+@			IN	SOA		{{dns_nameserver}}	{{dns_hostmaster}} (
+				{{ serial }}	; serial
+				4h		; refresh (4 hours)
+				4h		; retry (4 hours)
+				2w		; expire (2 weeks)
+				1h		; minimum (1 hour)
+				)
+
+{% for host in groups.dns_hosts %}
+			IN	NS		{{ host }}.node.{{ base_domain }}.
+{% endfor %}
+
+;			IN	MX	10	mx1.example.com.
+;			IN	MX	10	mx2.example.com.
+
+{% for host in openstack_servers %}
+{% for hostnet in host.addresses.keys() %}
+{% set addr_list = host.addresses[hostnet] %}
+{% for addr in addr_list %}
+{% if addr["version"] == 4 and addr["addr"]|ipaddr(subnet.cidr) %}
+{{  addr["addr"]|regex_replace("^(\d+)\.(\d+)\.(\d+)\.(\d+)$", "\\4") }}		IN	PTR	{{ host["name"] }}.{{ openshift_networks[hostnet]["dns-subdomain"] }}.{{ base_domain }}.
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endfor %}

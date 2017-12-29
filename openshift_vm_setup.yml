@@ -43,3 +43,43 @@
         name: network
         state: restarted
       listen: 'restart network'
+
+- name: Get server list from OpenStack
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: get VM infos
+      os_server_facts:
+        cloud: '{{ cloud }}'
+        endpoint_type: '{{ endpoint_type }}'
+
+- name: Configure hidden primary DNS server
+  hosts: dns_hidden_primary_hosts
+  gather_facts: false
+  remote_user: centos
+  tasks:
+    - name: configure DNS zone files
+      include_tasks: tasks/task_setup_dns_servers.yml
+    # we need a temporary DNS resolve so we can install packages with yum
+    - name: add temporary DNS resolver
+      lineinfile:
+        path: /etc/resolv.conf
+        line: "nameserver 8.8.8.8"
+        state: present
+        insertafter: '^search'
+        regexp: '^nameserver 8.8.8.8$'
+      become: true
+      become_user: root
+    - name: configure DNS daemon
+      include_role:
+        name: tinx.bind
+      vars:
+        remote_zone_file_dir: /tmp/primary_zones
+        allow_query: '{{ openshift_networks["dns-net"].subnets|map(attribute="cidr")|list }}'
+        allow_transfer: '{{ openshift_networks["dns-net"].subnets|map(attribute="cidr")|list }}'
+        listen_on:
+          - port: 53
+            interfaces:
+              - '{{ openstack_servers|selectattr("name", "equalto", "dns-primary")|map(attribute="addresses")|map(attribute="dns-net")|first|map(attribute="addr")|list }}'
+        listen_on_v6: []
+

@@ -1,0 +1,18 @@
+---
+- name: Get a SOA serial
+  command: date +%s
+  register: now
+  changed_when: false
+- name: Ensure destination directory exists
+  file:
+    path: /tmp/primary_zones
+    state: directory
+
+# We ignore all subnets that are not IPv4 /24 subnets.
+# We also ignore all subnets that we didn't define
+# in group_vars/all.yml:openshift_networks
+- name: Render zone file
+  template:
+    src: templates/reverse_zonefile.j2
+    dest: '/tmp/primary_zones/db.{{ subnet.cidr|ipaddr("network")|regex_replace("^(\d+)\.(\d+)\.(\d+)\.0$", "\3.\2.\1") }}.in-addr.arpa'
+  when: subnet.ip_version == 4 and subnet.cidr|ipaddr("prefix") == 24 and subnet.cidr in openshift_networks.values()|sum(attribute="subnets", start=[])|map(attribute="cidr")|list

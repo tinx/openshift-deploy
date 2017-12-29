@@ -1,0 +1,13 @@
+---
+- name: Get a SOA serial
+  command: date +%s
+  register: now
+  changed_when: false
+- name: Ensure destination directory exists
+  file:
+    path: /tmp/primary_zones
+    state: directory
+- name: Render zone file
+  template:
+    src: templates/zonefile.j2
+    dest: '/tmp/primary_zones/db.{{ hostvars[groups.all|first]["openshift_networks"][network]["dns-subdomain"] }}.{{ base_domain }}'

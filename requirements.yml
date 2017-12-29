@@ -1,0 +1,4 @@
+---
+- src: https://github.com/tinx/ansible-role-bind
+  version: master
+  name: tinx.bind

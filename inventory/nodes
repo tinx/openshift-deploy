@@ -1,3 +1,6 @@
+[dns_hidden_primary_hosts]
+dns-primary	availability_zone=crimson
+
 [dns_hosts]
 dns1		availability_zone=orange
 dns2		availability_zone=purple

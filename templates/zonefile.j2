@@ -1,0 +1,31 @@
+{% set domain = hostvars[groups.all|first]["openshift_networks"][network]["dns-subdomain"] + "." + base_domain %}
+{% set serial = now.stdout %}
+; {{ ansible_managed }}
+$TTL 4h
+$ORIGIN {{ domain }}.
+@			IN	SOA		{{dns_nameserver}}	{{dns_hostmaster}} (
+				{{ serial }}	; serial
+				4h		; refresh (4 hours)
+				4h		; retry (4 hours)
+				2w		; expire (2 weeks)
+				1h		; minimum (1 hour)
+				)
+
+{% for host in groups.dns_hosts %}
+			IN	NS		{{ host }}.node.{{ base_domain }}.
+{% endfor %}
+
+;			IN	MX	10	mx1.example.com.
+;			IN	MX	10	mx2.example.com.
+
+{% for host in openstack_servers %}
+{% if host["addresses"][network] is defined %}
+{% for addr in host["addresses"][network] %}
+{% if addr["version"] == 4 %}
+{{ host["name"] }}			IN	A		{{ addr["addr"] }}
+{% else %}
+{{ host["name"] }}			IN	AAAA		{{ addr["addr"] }}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}
