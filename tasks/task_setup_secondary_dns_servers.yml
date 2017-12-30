@@ -33,11 +33,12 @@
     name: tinx.bind
   vars:
     recursion: true
-    allow_query: '{{ openshift_networks["nodes-net"].subnets|map(attribute="cidr")|list }}'
-    allow_recursion: '{{ openshift_networks["nodes-net"].subnets|map(attribute="cidr")|list }}'
+    allow_query: '{{ openshift_networks.values()|sum(attribute="subnets", start=[])|map(attribute="cidr")|list }}'
+    allow_recursion: '{{ openshift_networks.values()|sum(attribute="subnets", start=[])|map(attribute="cidr")|list }}'
     listen_on:
       - port: 53
         interfaces:
+          - "!127.0.0.1"
           - any
     listen_on_v6: []
     slave_zones: '{{ detected_zones }}'

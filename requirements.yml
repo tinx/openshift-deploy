@@ -1,4 +1,9 @@
 ---
-- src: https://github.com/tinx/ansible-role-bind
+- src: https://github.com/tinx/ansible-role-bind.git
   version: master
   name: tinx.bind
+
+- src: https://github.com/tinx/ansible-role-dnsmasq.git
+  version: master
+  name: dnsmasq
+

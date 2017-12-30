@@ -10,6 +10,8 @@ key_name: os_admin
 base_domain: openshift.uf0.de
 dns_nameserver: ns1.openshift.uf0.de.
 dns_hostmaster: hostmaster@uf0.de.
+dns_default_domain: 'node.{{ base_domain }}.'
+dns_default_search: 'node.{{ base_domain }}.'
 
 # The internal networks that we want.
 openshift_networks:

@@ -4,6 +4,7 @@ flavor: m1.small
 networks:
   - public5
   - dns-net
+dns_network: dns-net
 security_groups:
   - secgroup_all_hosts
   - secgroup_allow_ssh

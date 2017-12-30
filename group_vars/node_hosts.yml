@@ -4,6 +4,7 @@ flavor: webnode
 networks:
   - public5
   - nodes-net
+dns_network: nodes-net
 security_groups:
   - secgroup_all_hosts
   - secgroup_allow_ssh

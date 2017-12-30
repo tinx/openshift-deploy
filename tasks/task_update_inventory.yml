@@ -1,0 +1,16 @@
+---
+- name: get VM infos
+  os_server_facts:
+    cloud: '{{ cloud }}'
+    endpoint_type: '{{ endpoint_type }}'
+  delegate_to: localhost
+- name: Add to inventory
+  add_host:
+    name: '{{ hostname }}'
+    groups: '{{ hostvars[hostname].group_names }}'
+    ansible_host: '{{ openstack_servers|selectattr("name", "equalto", hostname)|map(attribute="public_v4")|first }}'
+  changed_when: false
+  with_items:
+    - "{{ groups['all'] }}"
+  loop_control:
+    loop_var: hostname

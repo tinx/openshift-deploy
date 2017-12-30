@@ -5,6 +5,9 @@ networks:
   - public5
   - nodes-net
   - dns-net
+  - etcds-net
+  - masters-net
+dns_network: dns-net
 security_groups:
   - secgroup_all_hosts
   - secgroup_allow_ssh
