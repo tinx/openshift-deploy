@@ -44,89 +44,18 @@
         state: restarted
       listen: 'restart network'
 
-- name: Get server list from OpenStack
-  hosts: localhost
-  gather_facts: false
-  tasks:
-    - name: get VM infos
-      os_server_facts:
-        cloud: '{{ cloud }}'
-        endpoint_type: '{{ endpoint_type }}'
-
 - name: Configure hidden primary DNS server
   hosts: dns_hidden_primary_hosts
   gather_facts: false
   remote_user: centos
   tasks:
-    - name: configure DNS zone files
-      include_tasks: tasks/task_setup_dns_servers.yml
-    # we need a temporary DNS resolve so we can install packages with yum
-    - name: add temporary DNS resolver
-      lineinfile:
-        path: /etc/resolv.conf
-        line: "nameserver 8.8.8.8"
-        state: present
-        insertafter: '^search'
-        regexp: '^nameserver 8.8.8.8$'
-      become: true
-      become_user: root
-    - name: configure DNS daemon
-      include_role:
-        name: tinx.bind
-      vars:
-        remote_zone_file_dir: /tmp/primary_zones
-        allow_query: '{{ openshift_networks["dns-net"].subnets|map(attribute="cidr")|list }}'
-        allow_transfer: '{{ openshift_networks["dns-net"].subnets|map(attribute="cidr")|list }}'
-        listen_on:
-          - port: 53
-            interfaces: '{{ openstack_servers|selectattr("name", "equalto", groups.dns_hidden_primary_hosts|first)|map(attribute="addresses")|map(attribute="dns-net")|first|map(attribute="addr")|list }}'
-        listen_on_v6: []
+    - name: Configure primary DNS server
+      include_tasks: tasks/task_setup_primary_dns_server.yml
 
 - name: Configure secondary DNS servers
   hosts: dns_hosts
   gather_facts: false
   remote_user: centos
   tasks:
-    - name: get VM infos
-      os_server_facts:
-        cloud: '{{ cloud }}'
-        endpoint_type: '{{ endpoint_type }}'
-      delegate_to: localhost
-    - name: Fetch list of zones from primary DNS server
-      find:
-        paths: /etc/named/primaries
-        file_type: file
-        patterns: 'db.*'
-      register: primary_zone_files
-      become: true
-      become_user: root
-      delegate_to: '{{ groups.dns_hidden_primary_hosts|first }}'
-    - name: build args for secondary DNS servers
-      set_fact:
-        zone_master: '{{ openstack_servers|selectattr("name", "equalto", groups.dns_hidden_primary_hosts|first)|map(attribute="addresses")|map(attribute="dns-net")|first|map(attribute="addr")|first }}'
-    - set_fact:
-        detected_zones: '{{ detected_zones|default([]) + [ { "name": item, "masters": [ zone_master ] } ] }}'
-      with_items: '{{ primary_zone_files.files|map(attribute="path")|map("replace", "/etc/named/primaries/db.", "")|list }}'
-    - name: add temporary DNS resolver
-      lineinfile:
-        path: /etc/resolv.conf
-        line: "nameserver 8.8.8.8"
-        state: present
-        insertafter: '^search'
-        regexp: '^nameserver 8.8.8.8$'
-      become: true
-      become_user: root
-    - name: configure DNS daemon
-      include_role:
-        name: tinx.bind
-      vars:
-        recursion: true
-        allow_query: '{{ openshift_networks["nodes-net"].subnets|map(attribute="cidr")|list }}'
-        allow_recursion: '{{ openshift_networks["nodes-net"].subnets|map(attribute="cidr")|list }}'
-        listen_on:
-          - port: 53
-            interfaces:
-              - '{{ openstack_servers|selectattr("name", "equalto", inventory_hostname)|map(attribute="addresses")|map(attribute="nodes-net")|first|map(attribute="addr")|first }}'
-              - '{{ openstack_servers|selectattr("name", "equalto", inventory_hostname)|map(attribute="addresses")|map(attribute="dns-net")|first|map(attribute="addr")|first }}'
-        listen_on_v6: []
-        slave_zones: '{{ detected_zones }}'
+    - name: Configure primary DNS server
+      include_tasks: tasks/task_setup_secondary_dns_servers.yml

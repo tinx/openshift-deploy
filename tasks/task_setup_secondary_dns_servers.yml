@@ -1,0 +1,43 @@
+---
+- name: get VM infos
+  os_server_facts:
+    cloud: '{{ cloud }}'
+    endpoint_type: '{{ endpoint_type }}'
+  delegate_to: localhost
+- name: Fetch list of zones from primary DNS server
+  find:
+    paths: /etc/named/primaries
+    file_type: file
+    patterns: 'db.*'
+  register: primary_zone_files
+  become: true
+  become_user: root
+  delegate_to: '{{ groups.dns_hidden_primary_hosts|first }}'
+- name: build args for secondary DNS servers
+  set_fact:
+    zone_master: '{{ openstack_servers|selectattr("name", "equalto", groups.dns_hidden_primary_hosts|first)|map(attribute="addresses")|map(attribute="dns-net")|first|map(attribute="addr")|first }}'
+- set_fact:
+    detected_zones: '{{ detected_zones|default([]) + [ { "name": item, "masters": [ zone_master ] } ] }}'
+  with_items: '{{ primary_zone_files.files|map(attribute="path")|map("replace", "/etc/named/primaries/db.", "")|list }}'
+- name: add temporary DNS resolver
+  lineinfile:
+    path: /etc/resolv.conf
+    line: "nameserver 8.8.8.8"
+    state: present
+    insertafter: '^search'
+    regexp: '^nameserver 8.8.8.8$'
+  become: true
+  become_user: root
+- name: configure DNS daemon
+  include_role:
+    name: tinx.bind
+  vars:
+    recursion: true
+    allow_query: '{{ openshift_networks["nodes-net"].subnets|map(attribute="cidr")|list }}'
+    allow_recursion: '{{ openshift_networks["nodes-net"].subnets|map(attribute="cidr")|list }}'
+    listen_on:
+      - port: 53
+        interfaces:
+          - any
+    listen_on_v6: []
+    slave_zones: '{{ detected_zones }}'
