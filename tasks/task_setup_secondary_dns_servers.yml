@@ -35,6 +35,8 @@
     recursion: true
     allow_query: '{{ openshift_networks.values()|sum(attribute="subnets", start=[])|map(attribute="cidr")|list }}'
     allow_recursion: '{{ openshift_networks.values()|sum(attribute="subnets", start=[])|map(attribute="cidr")|list }}'
+    allow_notify:
+      - '{{ zone_master }}'
     listen_on:
       - port: 53
         interfaces:
