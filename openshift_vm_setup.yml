@@ -127,3 +127,27 @@
         dnsmasq_conf_servers: '{{ os_dns_servers }}'
       become: true
       become_user: root
+    - name: Ignore DHCP-reported nameservers
+      lineinfile:
+        path: /etc/dhcp/dhclient.conf
+        line: 'supersede domain-name-servers 127.0.0.1;'
+        state: present
+        regexp: '^supersede domain-name-servers '
+      become: true
+      become_user: root
+    - name: Ignore DHCP-reported domain search settings
+      lineinfile:
+        path: /etc/dhcp/dhclient.conf
+        line: 'supersede domain-search "{{ dns_default_search }}";'
+        state: present
+        regexp: '^supersede domain-search '
+      become: true
+      become_user: root
+    - name: Ignore DHCP-reported domain name
+      lineinfile:
+        path: /etc/dhcp/dhclient.conf
+        line: 'supersede domain-name "{{ dns_default_domain }}";'
+        state: present
+        regexp: '^supersede domain-name '
+      become: true
+      become_user: root
