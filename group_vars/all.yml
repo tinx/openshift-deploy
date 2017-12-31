@@ -73,6 +73,10 @@ openshift_security_groups:
       direction: ingress
       remote_group: secgroup_all_hosts
   secgroup_master_hosts:
+    - port_range_min: 443
+      port_range_max: 443
+      protocol: tcp
+      direction: ingress
     - port_range_min: 8443
       port_range_max: 8443
       protocol: tcp
@@ -87,6 +91,26 @@ openshift_security_groups:
       protocol: udp
       direction: ingress
       remote_group: secgroup_all_hosts
+    - port_range_min: 2379
+      port_range_max: 2379
+      protocol: udp
+      direction: ingress
+      remote_group: secgroup_master_hosts
+    - port_range_min: 2380
+      port_range_max: 2380
+      protocol: udp
+      direction: ingress
+      remote_group: secgroup_master_hosts
+    - port_range_min: 8053
+      port_range_max: 8053
+      protocol: udp
+      direction: ingress
+      remote_group: secgroup_master_hosts
+    - port_range_min: 4001
+      port_range_max: 4001
+      protocol: udp
+      direction: ingress
+      remote_group: secgroup_node_hosts
     - port_range_min: 4789
       port_range_max: 4789
       protocol: udp
@@ -126,6 +150,21 @@ openshift_security_groups:
       direction: ingress
     - port_range_min: 80
       port_range_max: 80
+      protocol: tcp
+      direction: ingress
+    - port_range_min: 9200
+      port_range_max: 9200
+      protocol: tcp
+      direction: ingress
+      remote_group: secgroup_all_hosts
+    - port_range_min: 9300
+      port_range_max: 9300
+      protocol: tcp
+      direction: ingress
+      remote_group: secgroup_infra_hosts
+  secgroup_loadbalancer_hosts:
+    - port_range_min: 9000
+      port_range_max: 9000
       protocol: tcp
       direction: ingress
 
