@@ -74,7 +74,7 @@
 - name: Ignore DHCP-reported nameservers
   lineinfile:
     path: /etc/dhcp/dhclient.conf
-    line: 'supersede domain-name-servers 127.0.0.1;'
+    line: 'supersede domain-name-servers {{ os_dns_servers|join(", ") }};'
     state: present
     regexp: '^supersede domain-name-servers '
   become: true
