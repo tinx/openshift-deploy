@@ -5,39 +5,72 @@
     endpoint_type: '{{ endpoint_type }}'
   delegate_to: localhost
   when: openstack_servers is not defined
-- name: add temporary DNS resolver
-  lineinfile:
-    path: /etc/resolv.conf
-    line: "nameserver 8.8.8.8"
-    state: present
-    insertafter: '^search'
-    regexp: '^nameserver 8.8.8.8$'
-  become: true
-  become_user: root
+#- name: add temporary DNS resolver
+#  lineinfile:
+#    path: /etc/resolv.conf
+#    line: "nameserver 8.8.8.8"
+#    state: present
+#    insertafter: '^search'
+#    regexp: '^nameserver 8.8.8.8$'
+#  become: true
+#  become_user: root
 - name: Prepare DNS server list
   set_fact:
     os_dns_servers: '{{ os_dns_servers|default([]) + [ openstack_servers|selectattr("name", "equalto", item)|map(attribute="addresses")|map(attribute=dns_network)|first|map(attribute="addr")|first ] }}'
   with_items: '{{ groups.dns_hosts }}'
-- name: Setup dnsmasq
-  include_role:
-    name:  dnsmasq
-  vars:
-    dnsmasq_resolvconf: true
-    dnsmasq_host_domain: '{{ dns_default_domain }}'
-    dnsmasq_host_search: '{{ dns_default_search }}'
-    dnsmasq_host_resolvers: [ "127.0.0.1" ]
-    dnsmasq_dhcp: false
-    dnsmasq_tftp: false
-    dnsmasq_conf_log: DAEMON
-    dnsmasq_conf_listen: [ 127.0.0.1 ]
-    dnsmasq_conf_bogus_priv: false
-    dnsmasq_conf_no_hosts: true
-    dnsmasq_conf_all_servers: true
-    dnsmasq_conf_resolv:
-    dnsmasq_conf_no_poll: true
-    dnsmasq_conf_servers: '{{ os_dns_servers }}'
+- name: remove current DNS resolvers
+  lineinfile:
+    path: /etc/resolv.conf
+    state: absent
+    regexp: '^nameserver '
   become: true
   become_user: root
+- name: add DNS resolver
+  lineinfile:
+    path: /etc/resolv.conf
+    line: "nameserver {{ item }}"
+    state: present
+    insertafter: '^search'
+    regexp: '^nameserver {{ item }}$'
+  become: true
+  become_user: root
+  with_items: '{{ os_dns_servers }}'
+- name: add domain
+  lineinfile:
+    path: /etc/resolv.conf
+    line: "domain {{ dns_default_domain }}"
+    state: present
+    regexp: '^domain '
+  become: true
+  become_user: root
+- name: add search domain
+  lineinfile:
+    path: /etc/resolv.conf
+    line: "search {{ dns_default_search }}"
+    state: present
+    regexp: '^search '
+  become: true
+  become_user: root
+#- name: Setup dnsmasq
+#  include_role:
+#    name:  dnsmasq
+#  vars:
+#    dnsmasq_resolvconf: true
+#    dnsmasq_host_domain: '{{ dns_default_domain }}'
+#    dnsmasq_host_search: '{{ dns_default_search }}'
+#    dnsmasq_host_resolvers: [ "127.0.0.1" ]
+#    dnsmasq_dhcp: false
+#    dnsmasq_tftp: false
+#    dnsmasq_conf_log: DAEMON
+#    dnsmasq_conf_listen: [ 127.0.0.1 ]
+#    dnsmasq_conf_bogus_priv: false
+#    dnsmasq_conf_no_hosts: true
+#    dnsmasq_conf_all_servers: true
+#    dnsmasq_conf_resolv:
+#    dnsmasq_conf_no_poll: true
+#    dnsmasq_conf_servers: '{{ os_dns_servers }}'
+#  become: true
+#  become_user: root
 - name: Ignore DHCP-reported nameservers
   lineinfile:
     path: /etc/dhcp/dhclient.conf
