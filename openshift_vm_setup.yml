@@ -91,14 +91,14 @@
     - name: Configure DNS clients
       include_tasks: tasks/task_setup_dns_clients.yml
 
-- name: Install NetworkManager everywhere
+- name: Install base prerequisites
   hosts: all
   gather_facts: true
   remote_user: centos
   become: true
   become_user: root
   tags:
-    - configure_network_manager
+    - configure_base_prerequisites
   tasks:
     - name: Install NetworkManager
       yum:
@@ -107,6 +107,43 @@
     - name: Activate NetworkManager
       service:
         name: NetworkManager
+        state: started
+        enabled: true
+    - name: Install OpenShift Repo
+      yum:
+        name: centos-release-openshift-origin
+        state: present
+    - name: Install package
+      yum:
+        name: '{{ item }}'
+        state: present
+      with_items:
+        - centos-release-openshift-origin
+        - wget
+        - git
+        - net-tools
+        - bind-utils
+        - iptables-services
+        - bridge-utils
+        - bash-completion
+        - origin-clients
+
+- name: Configure Docker
+  hosts: master_hosts,node_hosts
+  gather_facts: true
+  remote_user: centos
+  become: true
+  become_user: root
+  tags:
+    - configure_docker
+  tasks:
+    - name: Install Docker
+      yum:
+        name: docker-1.12.6
+        state: present
+    - name: Activate Docker
+      service:
+        name: docker
         state: started
         enabled: true
 
