@@ -90,3 +90,23 @@
   tasks:
     - name: Configure DNS clients
       include_tasks: tasks/task_setup_dns_clients.yml
+
+- name: Install NetworkManager everywhere
+  hosts: all
+  gather_facts: true
+  remote_user: centos
+  become: true
+  become_user: root
+  tags:
+    - configure_network_manager
+  tasks:
+    - name: Install NetworkManager
+      yum:
+        name: NetworkManager
+        state: present
+    - name: Activate NetworkManager
+      service:
+        name: NetworkManager
+        state: started
+        enabled: true
+
