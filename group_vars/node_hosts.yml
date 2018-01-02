@@ -9,3 +9,7 @@ security_groups:
   - secgroup_all_hosts
   - secgroup_allow_ssh
   - secgroup_node_hosts
+volumes:
+  - name_suffix: "docker"
+    size: 40
+    type: iscsi

@@ -1,0 +1,28 @@
+---
+# Ensure the VM has the correct state in the OpenStack cloud.
+- name: Set up volume
+  os_volume:
+    cloud: '{{ cloud }}'
+    endpoint_type: '{{ endpoint_type }}'
+    display_name: 'vol_{{ hostname }}_{{ volume.name_suffix }}'
+    #availability_zone: ceph
+    state: present
+    size: '{{ volume.size }}'
+    volume_type: '{{ volume.type }}'
+  register: vol_data
+  with_items: '{{ volumes }}'
+  when: volumes is defined
+  loop_control:
+    loop_var: volume
+- name: Attach volume
+  os_server_volume:
+    cloud: '{{ cloud }}'
+    endpoint_type: '{{ endpoint_type }}'
+    device: '/dev/vol{{ volume.name_suffix }}'
+    volume: 'vol_{{ hostname }}_{{ volume.name_suffix }}'
+    server: '{{ hostname }}'
+    state: present
+  with_items: '{{ volumes }}'
+  when: volumes is defined
+  loop_control:
+    loop_var: volume

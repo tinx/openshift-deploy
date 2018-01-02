@@ -1,0 +1,11 @@
+---
+- name: VM storage loop
+  include_tasks: "tasks/task_setup_vm_storage.yml"
+  when: hostvars[hostname].volumes is defined
+  vars:
+    host: "{{ hostvars[hostname] }}"
+    volumes: '{{ hostvars[hostname]["volumes"] }}'
+  with_items:
+    - "{{ groups['all'] }}"
+  loop_control:
+    loop_var: hostname

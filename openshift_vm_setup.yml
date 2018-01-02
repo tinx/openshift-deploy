@@ -17,6 +17,8 @@
       include_tasks: "tasks/task_setup_security_groups.yml"
     - name: Set up VMs
       include_tasks: "tasks/task_setup_vms.yml"
+    - name: Set up Storage Volumes
+      include_tasks: "tasks/task_setup_storage_volumes.yml"
 
 - name: Update inventory
   hosts: localhost
@@ -141,9 +143,33 @@
       yum:
         name: docker-1.12.6
         state: present
+    - name: Tweak storage config file
+      template:
+        src: docker-storage-setup.j2
+        dest: /etc/sysconfig/docker-storage-setup
+        owner: root
+        group: root
+        mode: 0644
+    - name: Query for docker lv
+      shell: 'lvs | grep docker-pool'
+      changed_when: false
+      register: lv_detect
+      failed_when: lv_detect.rc != 0 and lv_detect.rc != 1
+    - block:
+        - name: Stop Docker
+          service:
+            name: docker
+            state: stopped
+        # note: can't delete/recreate the directory because we'd
+        # loose the SELinux context and extended attribute.
+        # Sadly, "state=empty" has not been invented, yet for file:.
+        - name: Empty docker storage
+          shell: 'rm -rf /var/lib/docker/*'
+        - name: Reconfigure docker storage
+          command: /bin/docker-storage-setup
+      when: lv_detect.rc != 0
     - name: Activate Docker
       service:
         name: docker
         state: started
         enabled: true
-
