@@ -52,6 +52,13 @@
          - restart network
     - name: Make sure network changes are activated now
       meta: flush_handlers
+    - name: set hostname (remove .novalocal)
+      template:
+        src: hostname.j2
+        dest: /etc/hostname
+    - name: set hostname (without rebooting)
+      command: 'hostname {{ inventory_hostname }}'
+      changed_when: false
 
   handlers:
     - name: restart network

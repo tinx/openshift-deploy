@@ -95,3 +95,11 @@
     regexp: '^supersede domain-name '
   become: true
   become_user: root
+- name: Ignore DHCP-reported host name
+  lineinfile:
+    path: /etc/dhcp/dhclient.conf
+    line: 'supersede host-name "{{ inventory_hostname }}";'
+    state: present
+    regexp: '^supersede host-name '
+  become: true
+  become_user: root
