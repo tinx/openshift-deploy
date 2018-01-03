@@ -14,4 +14,4 @@ security_groups:
 volumes:
   - name_suffix: "docker"
     size: 40
-    type: iscsi
+    type: ceph
