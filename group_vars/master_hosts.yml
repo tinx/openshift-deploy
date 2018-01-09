@@ -10,6 +10,7 @@ dns_network: nodes-net
 security_groups:
   - secgroup_all_hosts
   - secgroup_allow_ssh
+  - secgroup_node_hosts
   - secgroup_master_hosts
 volumes:
   - name_suffix: "docker"

@@ -8,4 +8,9 @@ dns_network: nodes-net
 security_groups:
   - secgroup_all_hosts
   - secgroup_allow_ssh
+  - secgroup_node_hosts
   - secgroup_infra_hosts
+volumes:
+  - name_suffix: "docker"
+    size: 40
+    type: ceph

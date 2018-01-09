@@ -45,7 +45,7 @@
         owner: root
         group: root
         force: false
-      when: hostvars[inventory_hostname]["ansible_"+item]["type"] == "ether"
+      when: item|regex_search('^eth') and hostvars[inventory_hostname]["ansible_"+item] is defined and hostvars[inventory_hostname]["ansible_"+item]["type"] == "ether"
       with_items:
         - '{{ hostvars[inventory_hostname]["ansible_interfaces"] }}'
       notify:
@@ -138,7 +138,7 @@
         - origin-clients
 
 - name: Configure Docker
-  hosts: master_hosts,node_hosts
+  hosts: master_hosts,node_hosts,infra_hosts
   gather_facts: true
   remote_user: centos
   become: true
