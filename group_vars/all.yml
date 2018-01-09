@@ -144,12 +144,20 @@ openshift_security_groups:
       direction: ingress
       remote_group: secgroup_master_hosts
   secgroup_infra_hosts:
+    - port_range_min: 8443
+      port_range_max: 8443
+      protocol: tcp
+      direction: ingress
     - port_range_min: 443
       port_range_max: 443
       protocol: tcp
       direction: ingress
     - port_range_min: 80
       port_range_max: 80
+      protocol: tcp
+      direction: ingress
+    - port_range_min: 9000
+      port_range_max: 9000
       protocol: tcp
       direction: ingress
     - port_range_min: 9200
