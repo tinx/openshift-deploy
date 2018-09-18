@@ -13,26 +13,22 @@ dns_hostmaster: hostmaster@uf0.de.
 dns_default_domain: 'node.{{ base_domain }}.'
 dns_default_search: 'node.{{ base_domain }}.'
 
+# Extra volumes
+openshift_registry_volume:
+  name: "vol_registry"
+  size: 30
+  type: ceph
+
+# The routers.
+openshift_routers:
+  nodes-router:
+    network: public5
+    #external_fixed_ips:
+    #  - subnet: ipv4_public5
+    #    ip: 85.215.66.175
+
 # The internal networks that we want.
 openshift_networks:
-  masters-net:
-    dns-subdomain: master
-    external: false
-    shared: false
-    description: Communication between master hosts
-    subnets:
-      - cidr: 10.40.0.0/24
-        no_gateway_ip: true
-        name: masters-subnet1
-  etcds-net:
-    dns-subdomain: etcd
-    external: false
-    shared: false
-    description: Communication between etcd hosts
-    subnets:
-      - cidr: 10.50.0.0/24
-        no_gateway_ip: true
-        name: etcds-subnet1
   nodes-net:
     dns-subdomain: node
     external: false
@@ -40,17 +36,11 @@ openshift_networks:
     description: Node-to-node and node-master communication
     subnets:
       - cidr: 10.60.0.0/24
-        no_gateway_ip: true
         name: nodes-subnet1
-  dns-net:
-    dns-subdomain: dns
-    external: false
-    shared: false
-    description: Communication amongst DNS servers
-    subnets:
-      - cidr: 10.70.0.0/24
-        no_gateway_ip: true
-        name: dns-subnet1
+        gateway: nodes-router
+        gateway_ip: 10.60.0.1
+        allocation_pool_start: 10.60.0.10
+        allocation_pool_end: 10.60.0.250
 
 openshift_security_groups:
   secgroup_all_hosts:
@@ -61,118 +51,103 @@ openshift_security_groups:
       port_range_max: 22
       protocol: tcp
       direction: ingress
-  secgroup_dns_hosts:
-    - port_range_min: 53
-      port_range_max: 53
-      protocol: tcp
-      direction: ingress
-      remote_group: secgroup_all_hosts
-    - port_range_min: 53
-      port_range_max: 53
-      protocol: udp
-      direction: ingress
-      remote_group: secgroup_all_hosts
   secgroup_master_hosts:
-    - port_range_min: 443
-      port_range_max: 443
+    - port_range_min: 2379
+      port_range_max: 2379
       protocol: tcp
+      direction: ingress
+      remote_group: secgroup_master_hosts
+    - port_range_min: 2380
+      port_range_max: 2380
+      protocol: tcp
+      direction: ingress
+      remote_group: secgroup_master_hosts
+    - port_range_min: 8053
+      port_range_max: 8053
+      protocol: tcp
+      direction: ingress
+    - port_range_min: 8053
+      port_range_max: 8053
+      protocol: udp
       direction: ingress
     - port_range_min: 8443
       port_range_max: 8443
       protocol: tcp
       direction: ingress
-    - port_range_min: 8053
-      port_range_max: 8053
-      protocol: tcp
-      direction: ingress
-      remote_group: secgroup_all_hosts
-    - port_range_min: 8053
-      port_range_max: 8053
-      protocol: udp
-      direction: ingress
-      remote_group: secgroup_all_hosts
-    - port_range_min: 2379
-      port_range_max: 2379
-      protocol: udp
-      direction: ingress
-      remote_group: secgroup_master_hosts
-    - port_range_min: 2380
-      port_range_max: 2380
-      protocol: udp
-      direction: ingress
-      remote_group: secgroup_master_hosts
-    - port_range_min: 8053
-      port_range_max: 8053
-      protocol: udp
-      direction: ingress
-      remote_group: secgroup_master_hosts
-    - port_range_min: 4001
-      port_range_max: 4001
-      protocol: udp
-      direction: ingress
-      remote_group: secgroup_node_hosts
-    - port_range_min: 4789
-      port_range_max: 4789
-      protocol: udp
-      direction: ingress
-      remote_group: secgroup_node_hosts
-  secgroup_etcd_hosts:
-    - port_range_min: 2379
-      port_range_max: 2379
+    - port_range_min: 24224
+      port_range_max: 24224
       protocol: tcp
       direction: ingress
       remote_group: secgroup_master_hosts
-    - port_range_min: 2380
-      port_range_max: 2380
-      protocol: tcp
-      direction: ingress
-      remote_group: secgroup_etcd_hosts
-  secgroup_node_hosts:
-    - port_range_min: 10250
-      port_range_max: 10250
-      protocol: tcp
-      direction: ingress
-      remote_group: secgroup_master_hosts
-    - port_range_min: 4789
-      port_range_max: 4789
-      protocol: udp
-      direction: ingress
-      remote_group: secgroup_node_hosts
-    - port_range_min: 4789
-      port_range_max: 4789
+    - port_range_min: 24224
+      port_range_max: 24224
       protocol: udp
       direction: ingress
       remote_group: secgroup_master_hosts
   secgroup_infra_hosts:
-    - port_range_min: 8443
-      port_range_max: 8443
-      protocol: tcp
-      direction: ingress
-    - port_range_min: 443
-      port_range_max: 443
-      protocol: tcp
-      direction: ingress
     - port_range_min: 80
       port_range_max: 80
       protocol: tcp
       direction: ingress
-    - port_range_min: 9000
-      port_range_max: 9000
+    - port_range_min: 443
+      port_range_max: 443
       protocol: tcp
       direction: ingress
     - port_range_min: 9200
       port_range_max: 9200
       protocol: tcp
       direction: ingress
-      remote_group: secgroup_all_hosts
     - port_range_min: 9300
       port_range_max: 9300
+      protocol: udp
+      direction: ingress
+  secgroup_allow_external_services:
+    - port_range_min: 80
+      port_range_max: 80
       protocol: tcp
       direction: ingress
-      remote_group: secgroup_infra_hosts
-  secgroup_loadbalancer_hosts:
+    - port_range_min: 443
+      port_range_max: 443
+      protocol: tcp
+      direction: ingress
+    - port_range_min: 8443
+      port_range_max: 8443
+      protocol: tcp
+      direction: ingress
     - port_range_min: 9000
       port_range_max: 9000
       protocol: tcp
+      irection: ingress
+  secgroup_node_hosts:
+    - port_range_min: 4789
+      port_range_max: 4789
+      protocol: udp
       direction: ingress
-
+      remote_group: secgroup_node_hosts
+    - port_range_min: 10250
+      port_range_max: 10250
+      protocol: tcp
+      direction: ingress
+      remote_group: secgroup_node_hosts
+  secgroup_lb_hosts:
+    - port_range_min: 80
+      port_range_max: 80
+      protocol: tcp
+      direction: ingress
+    - port_range_min: 443
+      port_range_max: 443
+      protocol: tcp
+      direction: ingress
+    - port_range_min: 8443
+      port_range_max: 8443
+      protocol: tcp
+      direction: ingress
+  secgroup_dns_hosts:
+    - port_range_min: 53
+      port_range_max: 53
+      protocol: tcp
+      direction: ingress
+    - port_range_min: 53
+      port_range_max: 53
+      protocol: udp
+      direction: ingress

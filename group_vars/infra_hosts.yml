@@ -10,7 +10,12 @@ security_groups:
   - secgroup_allow_ssh
   - secgroup_node_hosts
   - secgroup_infra_hosts
+  - secgroup_allow_external_services
+userdata_template: "userdata_infra.j2"
 volumes:
   - name_suffix: "docker"
-    size: 40
+    size: 15
+    type: ceph
+  - name_suffix: "openshift"
+    size: 30
     type: ceph

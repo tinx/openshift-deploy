@@ -1,0 +1,23 @@
+---
+- name: Populate ansible hostvars
+  hosts: all
+  gather_facts: false
+  tags:
+    - always
+  tasks: []
+
+- name: Configure OpenStack project
+  hosts: localhost
+  tags:
+    - configure_cloud
+  tasks:
+    - name: Set up Networks
+      include_tasks: "tasks/task_setup_networks.yml"
+    - name: Set up Security Groups
+      include_tasks: "tasks/task_setup_security_groups.yml"
+    - name: Set up VMs
+      include_tasks: "tasks/task_setup_vms.yml"
+    - name: Set up Storage Volumes
+      include_tasks: "tasks/task_setup_storage_volumes.yml"
+    #- name: Set up Routers
+    #  include_tasks: "tasks/task_setup_routers.yml"

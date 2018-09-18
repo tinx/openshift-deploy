@@ -1,0 +1,12 @@
+---
+- name: Ensure presence of subnets on router
+  os_router:
+    cloud: '{{ cloud }}'
+    endpoint_type: '{{ endpoint_type }}'
+    name: '{{ router.key }}'
+    state: present
+    network: '{{ router.value.network|default(omit) }}'
+    external_fixed_ips: '{{ router.value.external_fixed_ips|default(omit) }}'
+    interfaces: "{{ openshift_networks|json_query(query)|sort|unique }}"
+  vars:
+    query: "*.subnets[?gateway=='{{router.key}}'].name[]"

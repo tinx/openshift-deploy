@@ -5,7 +5,10 @@
     endpoint_type: '{{ endpoint_type }}'
     network_name: '{{ os_network }}'
     name: '{{ subnet.name }}'
-    no_gateway_ip: '{{ subnet.no_gateway_ip }}'
+    no_gateway_ip: '{{ subnet.no_gateway_ip|default(omit) }}'
+    gateway_ip: '{{ subnet.gateway_ip|default(omit) }}'
+    allocation_pool_start: '{{ subnet.allocation_pool_start|default(omit) }}'
+    allocation_pool_end: '{{ subnet.allocation_pool_end|default(omit) }}'
     cidr: '{{ subnet.cidr }}'
     state: present
   with_items: '{{ os_subnets }}'

@@ -9,3 +9,13 @@
     - "{{ groups['all'] }}"
   loop_control:
     loop_var: hostname
+
+- name: Set up registry volume
+  os_volume:
+    cloud: '{{ cloud }}'
+    endpoint_type: '{{ endpoint_type }}'
+    display_name: '{{ openshift_registry_volume.name }}'
+    availability_zone: ceph
+    state: present
+    size: '{{ openshift_registry_volume.size }}'
+    volume_type: '{{ openshift_registry_volume.type }}'

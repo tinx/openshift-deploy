@@ -3,8 +3,6 @@ image: "CentOS 7"
 flavor: webnode
 networks:
   - public5
-  - masters-net
-  - etcds-net
   - nodes-net
 dns_network: nodes-net
 security_groups:
@@ -12,7 +10,14 @@ security_groups:
   - secgroup_allow_ssh
   - secgroup_node_hosts
   - secgroup_master_hosts
+userdata_template: "userdata_master.j2"
 volumes:
+  - name_suffix: "etcd"
+    size: 25
+    type: ceph
   - name_suffix: "docker"
-    size: 40
+    size: 15
+    type: ceph
+  - name_suffix: "openshift"
+    size: 30
     type: ceph

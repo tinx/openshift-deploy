@@ -15,7 +15,7 @@
   delegate_to: '{{ groups.dns_hidden_primary_hosts|first }}'
 - name: build args for secondary DNS servers
   set_fact:
-    zone_master: '{{ openstack_servers|selectattr("name", "equalto", groups.dns_hidden_primary_hosts|first)|map(attribute="addresses")|map(attribute="dns-net")|first|map(attribute="addr")|first }}'
+    zone_master: '{{ openstack_servers|selectattr("name", "equalto", groups.dns_hidden_primary_hosts|first)|map(attribute="addresses")|map(attribute="nodes-net")|first|map(attribute="addr")|first }}'
 - set_fact:
     detected_zones: '{{ detected_zones|default([]) + [ { "name": item, "masters": [ zone_master ] } ] }}'
   with_items: '{{ primary_zone_files.files|map(attribute="path")|map("replace", "/etc/named/primaries/db.", "")|list }}'

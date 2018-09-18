@@ -1,3 +1,6 @@
+[bastion_hosts]
+bastion1	availability_zone=crimson
+
 [dns_hidden_primary_hosts]
 dns-primary	availability_zone=crimson
 
@@ -19,12 +22,15 @@ node4		availability_zone=orange
 node5		availability_zone=purple
 node6		availability_zone=crimson
 
-[etcd_hosts]
-etcd1		availability_zone=orange
-etcd2		availability_zone=purple
-etcd3		availability_zone=crimson
+# [etcd_hosts]
+# etcd1		availability_zone=orange
+# etcd2		availability_zone=purple
+# etcd3		availability_zone=crimson
 
 [infra_hosts]
 infra1		availability_zone=orange
 infra2		availability_zone=purple
 infra3		availability_zone=crimson
+
+[lb_hosts]
+lb1		availability_zone=orange

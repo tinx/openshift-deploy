@@ -1,4 +1,9 @@
 ---
+- set_fact:
+    userdata: ""
+- set_fact:
+    userdata: "{{ lookup('template','templates/'+host.userdata_template) }}"
+  when: host.userdata_template is defined
 # Ensure the VM has the correct state in the OpenStack cloud.
 - name: Set up VM
   os_server:
@@ -12,4 +17,5 @@
     state: present
     nics: 'net-name={{ host.networks|join(",net-name=") }}'
     security_groups: '{{ host.security_groups }}'
+    userdata: '{{ userdata|default(omit) }}'
   register: my_vm

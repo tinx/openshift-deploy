@@ -1,0 +1,6 @@
+--- 
+- name: Ensure routers and subnet interfaces
+  include_tasks: "tasks/task_setup_router_subnets.yml"
+  with_dict: '{{ hostvars[inventory_hostname].openshift_routers }}'
+  loop_control:
+    loop_var: router

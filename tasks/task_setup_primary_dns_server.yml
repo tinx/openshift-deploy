@@ -13,17 +13,17 @@
   become_user: root
 - name: Prepare secondary DNS server list
   set_fact:
-    os_dns_servers: '{{ os_dns_servers|default([]) + [ openstack_servers|selectattr("name", "equalto", item)|map(attribute="addresses")|map(attribute="dns-net")|first|map(attribute="addr")|first ] }}'
+    os_dns_servers: '{{ os_dns_servers|default([]) + [ openstack_servers|selectattr("name", "equalto", item)|map(attribute="addresses")|map(attribute="nodes-net")|first|map(attribute="addr")|first ] }}'
   with_items: '{{ groups.dns_hosts }}'
 - name: configure DNS daemon
   include_role:
     name: tinx.bind
   vars:
     remote_zone_file_dir: /tmp/primary_zones
-    allow_query: '{{ openshift_networks["dns-net"].subnets|map(attribute="cidr")|list }}'
-    allow_transfer: '{{ openshift_networks["dns-net"].subnets|map(attribute="cidr")|list }}'
+    allow_query: '{{ openshift_networks["nodes-net"].subnets|map(attribute="cidr")|list }}'
+    allow_transfer: '{{ openshift_networks["nodes-net"].subnets|map(attribute="cidr")|list }}'
     also_notify: '{{ os_dns_servers }}'
     listen_on:
       - port: 53
-        interfaces: '{{ openstack_servers|selectattr("name", "equalto", groups.dns_hidden_primary_hosts|first)|map(attribute="addresses")|map(attribute="dns-net")|first|map(attribute="addr")|list }}'
+        interfaces: '{{ openstack_servers|selectattr("name", "equalto", groups.dns_hidden_primary_hosts|first)|map(attribute="addresses")|map(attribute="nodes-net")|first|map(attribute="addr")|list }}'
     listen_on_v6: []

@@ -1,0 +1,87 @@
+---
+- name: Populate ansible hostvars
+  hosts: all
+  gather_facts: false
+  tags:
+    - always
+  tasks: []
+
+- name: Update inventory
+  hosts: localhost
+  tags:
+    - always
+  tasks:
+    - name: Inject IP addresses into inventory
+      include_tasks: "tasks/task_update_inventory.yml"
+
+- name: Configure VMs
+  hosts: all
+  gather_facts: true
+  remote_user: centos
+  become: true
+  become_user: root
+  tags:
+    - configure_vms
+  tasks:
+    - name: Activate all interfaces
+      template:
+        src: templates/ifcfg.j2
+        dest: '/etc/sysconfig/network-scripts/ifcfg-{{ item }}'
+        mode: 0644
+        owner: root
+        group: root
+        force: false
+      when: item|regex_search('^eth') and hostvars[inventory_hostname]["ansible_"+item] is defined and hostvars[inventory_hostname]["ansible_"+item]["type"] == "ether"
+      with_items:
+        - '{{ hostvars[inventory_hostname]["ansible_interfaces"] }}'
+      notify:
+         - restart network
+    - name: Make sure network changes are activated now
+      meta: flush_handlers
+    - name: set hostname (remove .novalocal)
+      template:
+        src: hostname.j2
+        dest: /etc/hostname
+    - name: set hostname (without rebooting)
+      command: 'hostname {{ inventory_hostname }}'
+      changed_when: false
+
+  handlers:
+    - name: restart network
+      service:
+        name: network
+        state: restarted
+      listen: 'restart network'
+
+- name: Configure hidden primary DNS server
+  hosts: dns_hidden_primary_hosts
+  gather_facts: false
+  remote_user: centos
+  tags:
+    - configure_dns
+    - configure_primary_dns
+  tasks:
+    - name: Configure primary DNS server
+      include_tasks: tasks/task_setup_primary_dns_server.yml
+
+- name: Configure secondary DNS servers
+  hosts: dns_hosts
+  gather_facts: false
+  remote_user: centos
+  tags:
+    - configure_dns
+    - configure_secondary_dns
+  tasks:
+    - name: Configure primary DNS server
+      include_tasks: tasks/task_setup_secondary_dns_servers.yml
+
+- name: Configure all VMs to use our DNS servers
+  hosts: all
+  gather_facts: true
+  remote_user: centos
+  tags:
+    - configure_dns
+    - configure_dns_clients
+  tasks:
+    - name: Configure DNS clients
+      include_tasks: tasks/task_setup_dns_clients.yml

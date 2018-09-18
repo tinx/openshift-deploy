@@ -1,0 +1,25 @@
+---
+- name: Populate ansible hostvars
+  hosts: all
+  gather_facts: false
+  tags:
+    - always
+  tasks: []
+
+- name: Update inventory
+  hosts: localhost
+  tags:
+    - always
+  tasks:
+    - name: Inject IP addresses into inventory
+      include_tasks: "tasks/task_update_inventory.yml"
+
+- name: Configure bastion hosts
+  hosts: bastion_hosts
+  gather_facts: true
+  remote_user: centos
+  become: true
+  become_user: root
+  tags:
+    - configure_bastion_hosts
+  tasks: []

@@ -8,5 +8,5 @@ dns_network: nodes-net
 security_groups:
   - secgroup_all_hosts
   - secgroup_allow_ssh
+  - secgroup_lb_hosts
   - secgroup_node_hosts
-  - secgroup_dns_hosts
